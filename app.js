@@ -146,7 +146,7 @@ app.post(
               try {
                 const updatedUser = await User.findByIdAndUpdate(user._id, {
                   role: 'buyer'
-                },{ new: true });
+                }, { new: true });
 
                 if (updatedUser) {
                   console.error("User Subscribed:", updatedUser);
@@ -223,30 +223,10 @@ app.use('/api/v1', data);
 app.use("/api/v1", payment);
 
 
-app.get("/check", (req, res) => {
+app.get("/", (req, res) => {
   res.json({
     message: "Server is Running! (latest)",
   });
 });
-
-let environment = 'prod';
-if (environment === 'dev') {
-
-  app.get('/', (req, res) => {
-    res.json({
-      message: 'Server is Running!'
-    })
-  })
-} else {
-  let root = path.join(__dirname, '..', 'realstate', 'build/')
-  app.use(express.static(root))
-  app.use(function (req, res, next) {
-    if (req.method === 'GET' && req.accepts('html') && !req.is('json') && !req.path.includes('.')) {
-      res.sendFile('index.html', { root })
-    } else next()
-  })
-}
-// error middleware
-// app.use(errorMiddleware);
 
 module.exports = app;
