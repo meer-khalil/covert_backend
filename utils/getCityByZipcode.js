@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function getCityName(zipCode) {
+async function getCityNameByZipcode(zipCode) {
   try {
     const response = await axios.get(`https://api.zippopotam.us/us/${zipCode}`);
 
@@ -14,9 +14,5 @@ async function getCityName(zipCode) {
   }
 }
 
-// Example usage
-const zipCode = '44188'; // Replace with the actual zip code
-getCityName(zipCode);
 
-
-module.exports = getCityName
+module.exports = getCityNameByZipcode
