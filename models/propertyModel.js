@@ -41,7 +41,7 @@ const propertySchema = new mongoose.Schema({
     state: {
         type: String,
         default: function () {
-            return getState(this.zipcode).long;
+            return getState(this.zipcode);
         }
     },
     images: [
