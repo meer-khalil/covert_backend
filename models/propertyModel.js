@@ -56,6 +56,7 @@ const propertySchema = new mongoose.Schema({
             size: Number
         }
     ],
+    defaultImage: Number,
     files: [
         {
             fieldname: String,

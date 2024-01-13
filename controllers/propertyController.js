@@ -166,14 +166,8 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
     const body = req.body
     let property = JSON.parse(body.property)
 
-    // console.log('property: ', property);
-
     const uploadedImages = req.files['images'];
     const uploadedFiles = req.files['files'];
-
-    // console.log('Images: ', uploadedImages);
-    // console.log('Files: ', uploadedFiles);
-    // console.log('Property: ', property);
 
     property.files = uploadedFiles
     property.images = uploadedImages

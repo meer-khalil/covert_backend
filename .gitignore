@@ -1,3 +1,6 @@
 node_modules
 ImportData
 getarray.js
+
+public/**/*
+public/*
