@@ -10,6 +10,7 @@ const ErrorHandler = require('../utils/errorHandler');
 const cloudinary = require('cloudinary');
 const Property = require('../models/propertyModel');
 const getState = require('../utils/getState');
+const getCityNameByZipcode = require('../utils/getCityByZipcode');
 
 
 // Get All Products
@@ -166,14 +167,8 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
     const body = req.body
     let property = JSON.parse(body.property)
 
-    // console.log('property: ', property);
-
     const uploadedImages = req.files['images'];
     const uploadedFiles = req.files['files'];
-
-    // console.log('Images: ', uploadedImages);
-    // console.log('Files: ', uploadedFiles);
-    // console.log('Property: ', property);
 
     property.files = uploadedFiles
     property.images = uploadedImages
@@ -494,12 +489,12 @@ exports.getWikiDetail = asyncErrorHandler(async (req, res, next) => {
     const { query } = req.query;
 
     console.log('Request Made: ', query);
-    let state = getState(query).long;
-    console.log("State: ", state);
+    let city = getCityNameByZipcode(query);
+    console.log("City: ", city);
 
     try {
         const response = await axios.get(
-            `https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&titles=${state}`
+            `https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&titles=${city}`
         );
         const data = response.data;
         // console.log('Data: ', data);

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const getState = require('../utils/getState');
+const getCityNameByZipcode = require('../utils/getCityByZipcode');
 
 const propertySchema = new mongoose.Schema({
     // title: {
@@ -41,7 +42,7 @@ const propertySchema = new mongoose.Schema({
     state: {
         type: String,
         default: function () {
-            return getState(this.zipcode).long;
+            return getCityNameByZipcode(this.zipcode);
         }
     },
     images: [
@@ -56,6 +57,7 @@ const propertySchema = new mongoose.Schema({
             size: Number
         }
     ],
+    defaultImage: Number,
     files: [
         {
             fieldname: String,
