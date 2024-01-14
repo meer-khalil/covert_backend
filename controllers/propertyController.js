@@ -195,37 +195,17 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
 // Update Property ---ADMIN
 exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
 
-
     let property = await Property.findById(req.params.id);
 
     if (!property) {
         return next(new ErrorHandler("Property Not Found", 404));
     }
 
-    let {
-        title,
-        description,
-        actualCAP,
-        price,
-        proFormaCAP,
-        published,
-        occupancy,
-        units,
-        category,
-        features,
-        deleteImages,
-        oldImages,
-        showHome
-    } = req.body;
 
-
-    let propertyData = {}
-
+    let propertyData = JSON.parse(req.body.property)
+    let { deleteImages, oldImages } = req.body;
 
     const uploadedImages = req?.files?.images;
-
-    // console.log('Uploaded Images: ', uploadedImages);
-
     if (uploadedImages) {
         propertyData.images = uploadedImages
     }
@@ -245,41 +225,15 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
         deleteOldImages(deleteImages)
     }
 
-
-
-    propertyData = {
-        ...propertyData,
-        title,
-        description,
-        actualCAP,
-        price,
-        proFormaCAP,
-        published,
-        occupancy,
-        units,
-        category,
-        features,
-        showHome
-    }
-
-    property = await Property.findByIdAndUpdate(req.params.id, propertyData, {
+    Property.findByIdAndUpdate(req.params.id, propertyData, {
         new: true,
         runValidators: true,
         useFindAndModify: false,
-    });
-
-    if (property) {
-
-        res.status(201).json({
-            success: true,
-            property
-        });
-    } else {
-        res.status(500).json({
-            success: false,
-            message: "Error While Updating"
-        });
-    }
+    }).then((property) => res.status(201).json(property))
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json(error);
+        })
 });
 
 

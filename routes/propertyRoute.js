@@ -23,8 +23,6 @@ const router = express.Router();
 
 router.route("/properties").get(isAuthenticatedUser, getAllProperties);
 router.route("/properties/all").get(getProperties);
-// router.route("/properties/published").get(getPublishedProperties);
-// router.route("/properties/unpublished").get(getUnpublishedProperties);
 
 router.route('/seller/properties/new').post(isAuthenticatedUser, upload.fields([{ name: 'images' }, { name: 'files' }]), createPropertyBySeller)
 router

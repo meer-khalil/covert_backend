@@ -41,11 +41,7 @@ const propertySchema = new mongoose.Schema({
         type: String
     },
     state: {
-        type: String,
-        // default: async () => {
-        //     const val = await getCityNameByZipcode(this.zipcode)
-        //     return val
-        // }
+        type: String
     },
     images: [
         {
@@ -110,12 +106,8 @@ const propertySchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "User",
         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
-});
+}, { timestamps: true });
 
 propertySchema.pre('save', async function (next) {
     try {
@@ -146,7 +138,5 @@ propertySchema.pre('save', async function (next) {
     }
 });
 module.exports = mongoose.model('Property', propertySchema);
-
-
 
 // 0317-3311154
