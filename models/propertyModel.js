@@ -41,8 +41,8 @@ const propertySchema = new mongoose.Schema({
     },
     state: {
         type: String,
-        default: function () {
-            return getCityNameByZipcode(this.zipcode);
+        default: async function () {
+            return await getCityNameByZipcode(this.zipcode);
         }
     },
     images: [
