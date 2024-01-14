@@ -2,7 +2,6 @@ const express = require("express")
 
 const { createContact, enterPriseEmail } = require('../controllers/contactController')
 
-
 const router = express.Router();
 
 

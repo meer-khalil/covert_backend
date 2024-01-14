@@ -14,7 +14,7 @@ exports.createContact = asyncErrorHandler(async (req, res, next) => {
 
     let mailOptions = {
         from: 'info@covertnest.com',
-        to: email,
+        to: 'info@covertnest.com',
         subject: 'New Contact Form Submission',
         text: `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nMessage: ${message}`
     };
