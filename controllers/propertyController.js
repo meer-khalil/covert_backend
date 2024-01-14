@@ -54,19 +54,6 @@ exports.getProperties = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
-
-// Get All Products ---Product Sliders
-// exports.getPublishedProperties = asyncErrorHandler(async (req, res, next) => {
-
-//     const properties = await Property.find({ published: true });
-
-//     res.status(200).json({
-//         success: true,
-//         properties,
-//     });
-// });
-
-
 // Get Product Details
 exports.getProductDetails = asyncErrorHandler(async (req, res, next) => {
 
@@ -260,7 +247,6 @@ exports.deleteProperty = asyncErrorHandler(async (req, res, next) => {
     if (!property) {
         return next(new ErrorHandler("Product Not Found", 404));
     }
-
 
     // get the images
     let images = property.images;
