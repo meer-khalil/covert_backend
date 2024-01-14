@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const getState = require('../utils/getState');
 const getCityNameByZipcode = require('../utils/getCityByZipcode');
+const { default: axios } = require('axios');
 
 const propertySchema = new mongoose.Schema({
     // title: {
@@ -41,9 +42,10 @@ const propertySchema = new mongoose.Schema({
     },
     state: {
         type: String,
-        default: async function () {
-            return await getCityNameByZipcode(this.zipcode);
-        }
+        // default: async () => {
+        //     const val = await getCityNameByZipcode(this.zipcode)
+        //     return val
+        // }
     },
     images: [
         {
@@ -115,7 +117,36 @@ const propertySchema = new mongoose.Schema({
     }
 });
 
+propertySchema.pre('save', async function (next) {
+    try {
+        // Check if the zipcode field has been modified
+        if (!this.isModified('zipcode')) {
+            return next();
+        }
+
+        const zipcode = this.zipcode;
+        console.log('zipcode: ', zipcode);
+        const response = await axios.get(`https://api.zippopotam.us/us/${zipcode}`);
+
+        // Extract city name from the API response
+        const cityName = response.data.places[0]['place name'];
+
+        // Assuming the API response includes a state field
+        const newState = cityName;
+
+        // Set the state field in your Mongoose document
+        this.state = newState;
+
+        // Continue with the save operation
+        next();
+    } catch (error) {
+        // Handle errors appropriately
+        console.log('Error: ', error);
+        next(error);
+    }
+});
 module.exports = mongoose.model('Property', propertySchema);
+
 
 
 // 0317-3311154
