@@ -184,7 +184,7 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
             property: propertyDoc
         });
     } catch (error) {
-        console.log('Error: ', error);
+        console.error('Error while creating property: ', error);
         res.status(500).json({
             success: false,
             message: "Issue while creating property"
