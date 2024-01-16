@@ -1,5 +1,6 @@
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const Category = require("../models/categoryModel");
+const SearchFeatures = require("../utils/searchFeatures");
 
 exports.getAllCategories = asyncErrorHandler(async (req, res, next) => {
     try {
@@ -21,29 +22,32 @@ exports.getAllCategories = asyncErrorHandler(async (req, res, next) => {
 
 exports.getCategoryBlogs = asyncErrorHandler(async (req, res, next) => {
 
-    const resultPerPage = 6;
+    const data = await Category.findById(req.params.id).populate("blogs").select("-images -content");
+    console.log('category: ', data);
 
-    try {
+    const resultPerPage = 12;
+    const propertiesCount = data.length;
 
-        const data = await Category.findById(req.params.id).populate("blogs");
+    const searchFeature = new SearchFeatures(Category.findById(req.params.id).populate("blogs"), req.query)
+        .search()
+        .filter();
 
-        let total = Math.floor(data.blogs.length / resultPerPage);
-        let currentPage = req.params.page || 1;
-        let skipBlogs = resultPerPage * (currentPage - 1);
+    let blogs = await searchFeature.query;
+    let filteredPropertiesCount = blogs.length;
 
-        const blogs = await Category.findById(req.params.id).populate('blogs').limit(resultPerPage).skip(skipBlogs);
+    searchFeature.pagination(resultPerPage);
 
-        res.status(200).json({
-            blogs: blogs.blogs,
-            pages: total
-        })
-    } catch (error) {
-        console.log(error)
-        console.log('Error: ', error);
-        res.status(500).json({
-            error
-        })
-    }
+    blogs = await searchFeature.query.clone();
+
+
+    res.status(200).json({
+        success: true,
+        blogs,
+        propertiesCount,
+        resultPerPage,
+        filteredPropertiesCount,
+    });
+
 })
 
 

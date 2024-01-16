@@ -7,7 +7,7 @@ const cloudinary = require("cloudinary");
 const SearchFeatures = require("../utils/searchFeatures");
 const { deleteOldImages } = require("./propertyController");
 
-// Create New Order
+
 exports.createBlog = asyncErrorHandler(async (req, res, next) => {
   try {
     let body = JSON.parse(req.body.data);
@@ -21,65 +21,36 @@ exports.createBlog = asyncErrorHandler(async (req, res, next) => {
 
     const blog = await Blog.create(body);
 
-    blog.tags.forEach(async (tag) => {
-      let category = await Category.findOneAndUpdate({ name: tag }, { $push: { blogs: blog._id } }, {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-      });
-      console.log('category: ', category);
-    })
+    res.status(201).json(blog);
 
-    res.status(201).json({
-      success: true,
-      blog,
-    });
   } catch (error) {
-    console.error("Error creating blog:", error.message);
-
-    res.status(500).json({
-      success: false,
-      error: "Error creating blog",
-    });
+    console.error(error);
+    res.status(500).json(error);
   }
 });
 
-// Get Single Order Details
 exports.getBlogDetails = asyncErrorHandler(async (req, res, next) => {
   const blog = await Blog.findById(req.params.id)
     .populate("user")
     .populate("tags")
 
+  console.log('blog: ', blog);
+
   if (!blog) {
     return next(new ErrorHandler("Blog Not Found", 404));
   }
 
-  res.status(200).json({
-    blog,
-  });
+  res.status(200).json(blog);
 });
 
-// Get Logged In User Orders
-// exports.myOrders = asyncErrorHandler(async (req, res, next) => {
-//   const orders = await Order.find({ user: req.user._id });
-
-//   if (!orders) {
-//     return next(new ErrorHandler("Order Not Found", 404));
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     orders,
-//   });
-// });
 
 // Get All Orders ---ADMIN
 exports.getBlogs = asyncErrorHandler(async (req, res, next) => {
 
   const resultPerPage = 12;
-  const propertiesCount = await Blog.countDocuments();
 
-  const searchFeature = new SearchFeatures(Blog.find({}).select({"title": 1, "cover": 1}).populate("tags"), req.query)
+
+  const searchFeature = new SearchFeatures(Blog.find({}).select({ "title": 1, "cover": 1 }).populate("tags"), req.query)
     .search()
     .filter();
 
@@ -93,12 +64,34 @@ exports.getBlogs = asyncErrorHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     blogs,
-    propertiesCount,
     resultPerPage,
     filteredPropertiesCount,
   });
 });
 
+exports.getBlogsByCategory = asyncErrorHandler(async (req, res, next) => {
+
+  const resultPerPage = 12;
+  let data = await Blog.find({ tags: req.params.tagId }).populate('tags')
+  console.log(data);
+  const searchFeature = new SearchFeatures(Blog.find({ tags: req.params.tagId }).populate('tags'), req.query)
+    .search()
+    .filter();
+
+  let blogs = await searchFeature.query;
+  let filteredPropertiesCount = blogs.length;
+
+  searchFeature.pagination(resultPerPage);
+
+  blogs = await searchFeature.query.clone();
+
+  res.status(200).json({
+    success: true,
+    blogs,
+    resultPerPage,
+    filteredPropertiesCount,
+  });
+});
 // Update Order Status ---ADMIN
 exports.updateBlog = asyncErrorHandler(async (req, res, next) => {
   try {
@@ -108,9 +101,7 @@ exports.updateBlog = asyncErrorHandler(async (req, res, next) => {
       return next(new ErrorHandler("Blog Not Found(Bachayi)", 404));
     }
 
-    // console.log('body: ', req.body);
     let body = JSON.parse(req.body.data);
-    // let user = req.user;
 
     let image = req?.files?.cover
     if (image) {
