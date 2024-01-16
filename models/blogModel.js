@@ -30,7 +30,7 @@ const blogSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    tags: [{ type: String }],
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
     comments: {
         type: Boolean,
         default: false
