@@ -222,7 +222,7 @@ app.use("/api/v1", payment);
 
 app.get("/", (req, res) => {
   res.json({
-    message: "Server is Running! (latest)",
+    message: "Server is Running! Master",
   });
 });
 

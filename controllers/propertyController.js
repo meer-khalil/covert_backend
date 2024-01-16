@@ -360,7 +360,8 @@ exports.getHomeReviews = asyncErrorHandler(async (req, res, next) => {
         reviews: reviews
     });
 });
-// Delete Reveiws
+
+
 exports.deleteReview = asyncErrorHandler(async (req, res, next) => {
 
     await Review.findByIdAndDelete(req.query.id)
