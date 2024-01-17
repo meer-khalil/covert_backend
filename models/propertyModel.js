@@ -40,12 +40,6 @@ const propertySchema = new mongoose.Schema({
     zipcode: {
         type: String
     },
-    state: {
-        type: String,
-        default: () => {
-            return getState(this.zipcode)?.long
-        }
-    },
     city: {
         type: String
     },
