@@ -123,7 +123,7 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
     let zipcode = property.zipcode
     if (zipcode) {
         try {
-            let state = getState(zipcode).long
+            let state = getState(Integer.toString(zipcode))?.long
             let st = await State.findOne({ name: state })
             if (!st) {
                 await State.create({ name: state })
