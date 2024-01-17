@@ -41,6 +41,12 @@ const propertySchema = new mongoose.Schema({
         type: String
     },
     state: {
+        type: String,
+        default: () => {
+            return getState(this.zipcode).long
+        }
+    },
+    city: {
         type: String
     },
     images: [
@@ -123,11 +129,8 @@ propertySchema.pre('save', async function (next) {
         // Extract city name from the API response
         const cityName = response.data.places[0]['place name'];
 
-        // Assuming the API response includes a state field
-        const newState = cityName;
-
         // Set the state field in your Mongoose document
-        this.state = newState;
+        this.city = cityName;
 
         // Continue with the save operation
         next();

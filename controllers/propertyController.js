@@ -17,9 +17,7 @@ const State = require('../models/Data/stateModel');
 // Get All Products
 exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
 
-    const resultPerPage = 12;
-    const propertiesCount = await Property.countDocuments();
-
+    const resultPerPage = 4;
 
     const searchFeature = new SearchFeatures(
         Property.find(req.user.role === 'admin' ? {} : { published: true }),
@@ -36,9 +34,7 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
     properties = await searchFeature.query.clone();
 
     res.status(200).json({
-        success: true,
         properties,
-        propertiesCount,
         resultPerPage,
         filteredPropertiesCount,
     });
@@ -59,28 +55,11 @@ exports.getProperties = asyncErrorHandler(async (req, res, next) => {
 exports.getProductDetails = asyncErrorHandler(async (req, res, next) => {
 
     const property = await Property.findById(req.params.id);
-    // let reviews = await Review.find({ product: product._id })
-
-    // console.log('\n\nProduct: ', product);
-    // console.log('\n\nreviews: ', reviews);
-    // console.log('Request Came');
 
     if (!property) {
         return next(new ErrorHandler("Property Not Found", 404));
     }
 
-    // if (reviews) {
-    //     product["reviews"] = reviews
-    // }
-
-
-    // console.log('\n\nProduct after adding reviews: \n', product);
-
-    // let temp_product = {
-    //     ...product,
-    //     reviews
-    // }
-    // console.log('\n\nProduct after adding reviews: \n', temp_product);
     res.status(200).json({
         success: true,
         property
@@ -102,22 +81,6 @@ exports.getAdminProperties = asyncErrorHandler(async (req, res, next) => {
 exports.createProperty = asyncErrorHandler(async (req, res, next) => {
 
     console.log('body: ', req.body);
-
-    // let {
-    //     title,
-    //     description,
-    //     price,
-    //     actualCAP,
-    //     proFormaCAP,
-    //     occupancy,
-    //     units,
-    //     category,
-    //     features,
-    //     deleteImages,
-    //     oldImages,
-    //     showHome
-    // } = req.body;
-
 
     const uploadedImages = req?.files?.images;
 

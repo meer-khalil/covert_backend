@@ -6,6 +6,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const cloudinary = require("cloudinary");
 const SearchFeatures = require("../utils/searchFeatures");
 const { deleteOldImages } = require("./propertyController");
+const { query } = require("express");
 
 
 exports.createBlog = asyncErrorHandler(async (req, res, next) => {
@@ -49,7 +50,7 @@ exports.getBlogs = asyncErrorHandler(async (req, res, next) => {
 
   const resultPerPage = 12;
 
-
+  console.log('query: ', query);
   const searchFeature = new SearchFeatures(Blog.find({}).select({ "title": 1, "cover": 1 }).populate("tags"), req.query)
     .search()
     .filter();
