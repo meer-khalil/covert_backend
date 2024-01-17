@@ -2,11 +2,6 @@ const express = require("express");
 
 const {
   getProductDetails,
-  getProductReviews,
-  deleteReview,
-  createProductReview,
-  getHomeReviews,
-  createContact,
   getAllProperties,
   getProperties,
   createProperty,
@@ -15,6 +10,7 @@ const {
   getAdminProperties,
   createPropertyBySeller,
   getWikiDetail,
+  getAllStates,
 } = require("../controllers/propertyController");
 
 const { isAuthenticatedUser, authorizeRoles } = require("../middlewares/auth");
@@ -37,19 +33,9 @@ router
   .put(isAuthenticatedUser, authorizeRoles("admin"), upload.fields([{ name: 'images' }]), updateProperty)
   .delete(isAuthenticatedUser, authorizeRoles("admin"), deleteProperty);
 
-// router
-//   .route("/admin/properties/:id")
-//   .put(isAuthenticatedUser, authorizeRoles("admin"), updateProperty);
-
 router.route('/properties/wikipedia').get(isAuthenticatedUser, getWikiDetail)
 router.route("/properties/:id").get(getProductDetails);
+router.route("/states").get(getAllStates);
 
-// router.route('/review').put(isAuthenticatedUser, createProductReview);
-// router.route('/review').get(getHomeReviews);
-// router.route('/admin/reviews')
-//     .get(getProductReviews)
-//     .delete(isAuthenticatedUser, deleteReview);
-
-// router.route('/contact').post(createContact);
 
 module.exports = router;

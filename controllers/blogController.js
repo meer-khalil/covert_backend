@@ -94,63 +94,33 @@ exports.getBlogsByCategory = asyncErrorHandler(async (req, res, next) => {
 });
 // Update Order Status ---ADMIN
 exports.updateBlog = asyncErrorHandler(async (req, res, next) => {
-  try {
-    let { id } = req.params;
-    let blog = await Blog.findById({ _id: id });
-    if (!blog) {
-      return next(new ErrorHandler("Blog Not Found(Bachayi)", 404));
-    }
 
-    let body = JSON.parse(req.body.data);
-
-    let image = req?.files?.cover
-    if (image) {
-      body.cover = image[0]
-      deleteOldImages([blog.cover])
-    }
-
-    // console.log('body: ', body);
-    let deletedOld = blog.tags.filter((e) => !body.tags.includes(e))
-    let newTags = body.tags.filter((e) => !blog.tags.includes(e))
-
-    newTags.forEach(async (tag) => {
-      let category = await Category.findOneAndUpdate({ name: tag }, { $push: { blogs: blog._id } }, {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-      });
-      console.log('new category: ', category);
-    })
-
-    newTags.forEach(async (tag) => {
-      let category = await Category.findOneAndUpdate({ name: tag }, { $pull: { blogs: blog._id } }, {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-      });
-      console.log('old category: ', category);
-    })
-
-
-    console.log('blog body: ', body);
-    blog = await Blog.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-      useFindAndModify: false,
-    })
-    res.status(201).json({
-      success: true,
-      blog,
-    });
-  } catch (error) {
-    console.error("Error creating blog:", error.message);
-
-    res.status(500).json({
-      success: false,
-      error: "Error creating blog",
-    });
+  let { id } = req.params;
+  let blog = await Blog.findById({ _id: id });
+  if (!blog) {
+    return next(new ErrorHandler("Blog Not Found(Bachayi)", 404));
   }
+
+  let body = JSON.parse(req.body.data);
+
+  let image = req?.files?.cover
+  if (image) {
+    body.cover = image[0]
+    deleteOldImages([blog.cover])
+  }
+
+  Blog.findByIdAndUpdate(id, body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  })
+    .then((blog) => res.status(201).json(blog))
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json(error);
+    })
 });
+
 // // Delete Order ---ADMIN
 exports.deleteBlog = asyncErrorHandler(async (req, res, next) => {
   try {

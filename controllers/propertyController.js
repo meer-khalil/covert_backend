@@ -11,6 +11,7 @@ const cloudinary = require('cloudinary');
 const Property = require('../models/propertyModel');
 const getState = require('../utils/getState');
 const getCityNameByZipcode = require('../utils/getCityByZipcode');
+const State = require('../models/Data/stateModel');
 
 
 // Get All Products
@@ -150,10 +151,20 @@ exports.createProperty = asyncErrorHandler(async (req, res, next) => {
 
 
 exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
+    console.log('here is request');
 
     const body = req.body
     let property = JSON.parse(body.property)
 
+    // add state name to database
+    let zipcode = property.zipcode
+    if (zipcode) {
+        let state = getState(zipcode)
+        let st = await State.findOne({ name: state })
+        if (!st) {
+            await State.create({ name: state })
+        }
+    }
     const uploadedImages = req.files['images'];
     const uploadedFiles = req.files['files'];
 
@@ -166,16 +177,10 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
 
         console.log(propertyDoc);
 
-        res.status(201).json({
-            success: true,
-            property: propertyDoc
-        });
+        res.status(201).json(propertyDoc);
     } catch (error) {
-        console.error('Error while creating property: ', error);
-        res.status(500).json({
-            success: false,
-            message: "Issue while creating property"
-        });
+        console.error(error);
+        res.status(500).json(error);
     }
 });
 
@@ -190,7 +195,23 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
 
 
     let propertyData = JSON.parse(req.body.property)
-    let { deleteImages, oldImages } = req.body;
+    let { oldImages } = req.body;
+
+    oldImages = oldImages.map((item) => JSON.parse(item))
+
+    let dImages = property.images.filter(e => {
+        let del = true;
+        for (let index = 0; index < oldImages.length; index++) {
+            const element = oldImages[index];
+            if (element?._id === e._id) {
+                del = false
+                break;
+            }
+        }
+        if (del) {
+            return e;
+        }
+    })
 
     const uploadedImages = req?.files?.images;
     if (uploadedImages) {
@@ -202,21 +223,20 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
             propertyData.images = []
         }
         oldImages.forEach((item) => {
-            let image = JSON.parse(item)
-            propertyData.images.push(image)
+            propertyData.images.push(item)
         })
     }
 
-    if (deleteImages) {
-        deleteImages = deleteImages.map((e) => JSON.parse(e))
-        deleteOldImages(deleteImages)
+    if (dImages) {
+        deleteOldImages(dImages)
     }
 
     Property.findByIdAndUpdate(req.params.id, propertyData, {
         new: true,
         runValidators: true,
         useFindAndModify: false,
-    }).then((property) => res.status(201).json(property))
+    })
+        .then((property) => res.status(201).json(property))
         .catch((error) => {
             console.error(error);
             res.status(500).json(error);
@@ -362,48 +382,6 @@ exports.getHomeReviews = asyncErrorHandler(async (req, res, next) => {
 });
 
 
-exports.deleteReview = asyncErrorHandler(async (req, res, next) => {
-
-    await Review.findByIdAndDelete(req.query.id)
-    let reviews = await Review.find({ product: req.query.productId });
-
-    if (!reviews) {
-        return next(new ErrorHandler("Product Not Found", 404));
-    }
-
-    // reviews = reviews.filter((rev) => rev._id.toString() !== req.query.id.toString());
-
-    let avg = 0;
-
-    reviews.forEach((rev) => {
-        avg += rev.rating;
-    });
-
-    let ratings = 0;
-
-    if (reviews.length === 0) {
-        ratings = 0;
-    } else {
-        ratings = avg / reviews.length;
-    }
-
-    const numOfReviews = reviews.length;
-
-    await Product.findByIdAndUpdate(req.query.productId, {
-        ratings: Number(ratings),
-        numOfReviews,
-    }, {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-    });
-
-
-    res.status(200).json({
-        success: true,
-    });
-});
-
 
 // For Capturing Contact Info
 // Create Product ---ADMIN
@@ -430,7 +408,7 @@ exports.getWikiDetail = asyncErrorHandler(async (req, res, next) => {
     const { query } = req.query;
 
     console.log('Request Made: ', query);
-    let city = getCityNameByZipcode(query);
+    let city = await getCityNameByZipcode(query);
     console.log("City: ", city);
 
     try {
@@ -438,10 +416,26 @@ exports.getWikiDetail = asyncErrorHandler(async (req, res, next) => {
             `https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&titles=${city}`
         );
         const data = response.data;
-        // console.log('Data: ', data);
-        res.json(data);
+        console.log('Data: ', data);
+        res.json({
+            data,
+            city
+        });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Error while fetching data from Wikipedia.');
+    }
+})
+
+
+exports.getAllStates = asyncErrorHandler(async (req, res) => {
+    try {
+        // Fetch all states from the database
+        let states = await State.find();
+
+        res.json(states.map(e => e.name));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     }
 })
