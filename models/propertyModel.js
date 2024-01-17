@@ -40,6 +40,9 @@ const propertySchema = new mongoose.Schema({
     zipcode: {
         type: String
     },
+    state: {
+        type: String
+    },
     city: {
         type: String
     },
@@ -122,10 +125,10 @@ propertySchema.pre('save', async function (next) {
 
         // Extract city name from the API response
         const cityName = response.data.places[0]['place name'];
-
-        // Set the state field in your Mongoose document
         this.city = cityName;
 
+        let state = getState(this.zipcode)?.long
+        this.state = state || ''
         // Continue with the save operation
         next();
     } catch (error) {

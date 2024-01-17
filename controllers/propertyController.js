@@ -12,6 +12,7 @@ const Property = require('../models/propertyModel');
 const getState = require('../utils/getState');
 const getCityNameByZipcode = require('../utils/getCityByZipcode');
 const State = require('../models/Data/stateModel');
+const addStateToList = require('../utils/addStateToList');
 
 
 // Get All Products
@@ -121,17 +122,8 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
 
     // add state name to database
     let zipcode = property.zipcode
-    if (zipcode) {
-        try {
-            let state = getState(zipcode.toString())?.long
-            let st = await State.findOne({ name: state })
-            if (!st) {
-                await State.create({ name: state })
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    addStateToList(zipcode);
+
     const uploadedImages = req.files['images'];
     const uploadedFiles = req.files['files'];
 
@@ -162,6 +154,7 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
 
 
     let propertyData = JSON.parse(req.body.property)
+
     let { oldImages } = req.body;
 
     oldImages = oldImages.map((item) => JSON.parse(item))
