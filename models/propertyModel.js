@@ -105,6 +105,10 @@ const propertySchema = new mongoose.Schema({
     finance_cash: { type: Boolean },
     finance_sellerFinance: { type: Boolean },
     finance_mortgage: { type: Boolean, default: true },
+    slug: {
+        type: String,
+        unique: true,
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: "User",
@@ -129,6 +133,9 @@ propertySchema.pre('save', async function (next) {
 
         let state = getState(this.zipcode)?.long
         this.state = state || ''
+
+        this.slug = slugify(this.address, { lower: true });
+
         // Continue with the save operation
         next();
     } catch (error) {

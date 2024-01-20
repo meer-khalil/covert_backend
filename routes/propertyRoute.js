@@ -11,6 +11,7 @@ const {
   createPropertyBySeller,
   getWikiDetail,
   getAllStates,
+  getPropertyDetails,
 } = require("../controllers/propertyController");
 
 const { isAuthenticatedUser, authorizeRoles } = require("../middlewares/auth");
@@ -34,7 +35,7 @@ router
   .delete(isAuthenticatedUser, authorizeRoles("admin"), deleteProperty);
 
 router.route('/properties/wikipedia').get(isAuthenticatedUser, getWikiDetail)
-router.route("/properties/:id").get(getProductDetails);
+router.route("/properties/:slug").get(getPropertyDetails);
 router.route("/states").get(getAllStates);
 
 

@@ -53,18 +53,15 @@ exports.getProperties = asyncErrorHandler(async (req, res, next) => {
 });
 
 // Get Product Details
-exports.getProductDetails = asyncErrorHandler(async (req, res, next) => {
+exports.getPropertyDetails = asyncErrorHandler(async (req, res, next) => {
 
-    const property = await Property.findById(req.params.id);
+    const property = await Property.findOne({ slug: req.params.slug });
 
     if (!property) {
         return next(new ErrorHandler("Property Not Found", 404));
     }
 
-    res.status(200).json({
-        success: true,
-        property
-    });
+    res.status(200).json(property);
 });
 
 // Get All Products ---ADMIN
