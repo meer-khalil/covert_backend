@@ -30,7 +30,7 @@ router
   .post(isAuthenticatedUser, authorizeRoles("admin"), upload.fields([{ name: 'images' }, { name: 'files' }]), createProperty);
 
 router
-  .route("/admin/properties/:id")
+  .route("/admin/properties/:slug")
   .put(isAuthenticatedUser, authorizeRoles("admin"), upload.fields([{ name: 'images' }]), updateProperty)
   .delete(isAuthenticatedUser, authorizeRoles("admin"), deleteProperty);
 

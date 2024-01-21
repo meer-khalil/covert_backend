@@ -143,7 +143,7 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
 // Update Property ---ADMIN
 exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
 
-    let property = await Property.findById(req.params.id);
+    let property = await Property.findOne({ slug: req.params.slug });
 
     if (!property) {
         return next(new ErrorHandler("Property Not Found", 404));
@@ -154,11 +154,11 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
 
     let { oldImages } = req.body;
 
-    oldImages = oldImages.map((item) => JSON.parse(item))
+    oldImages = oldImages?.map((item) => JSON.parse(item))
 
-    let dImages = property.images.filter(e => {
+    let dImages = property?.images?.filter(e => {
         let del = true;
-        for (let index = 0; index < oldImages.length; index++) {
+        for (let index = 0; index < oldImages?.length; index++) {
             const element = oldImages[index];
             if (element?._id === e._id) {
                 del = false
@@ -188,7 +188,7 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
         deleteOldImages(dImages)
     }
 
-    Property.findByIdAndUpdate(req.params.id, propertyData, {
+    Property.findByIdAndUpdate(property._id, propertyData, {
         new: true,
         runValidators: true,
         useFindAndModify: false,
@@ -205,7 +205,7 @@ function deleteOldImages(images) {
     images.forEach((image) => {
         fs.unlink(image.path, (err) => {
             if (err) {
-                console.error(`Error deleting file ${image.filename}: ${err}`);
+                console.error(err);
             } else {
                 console.log(`Deleted file ${image.filename}`);
             }
@@ -217,9 +217,7 @@ exports.deleteOldImages = deleteOldImages
 // Delete Product ---ADMIN
 exports.deleteProperty = asyncErrorHandler(async (req, res, next) => {
 
-    let params = req.params;
-    console.log('Params: ', params);
-    const property = await Property.findById(req.params.id);
+    const property = await Property.findOne({ slug: req.params.slug });
 
     if (!property) {
         return next(new ErrorHandler("Product Not Found", 404));
@@ -233,7 +231,7 @@ exports.deleteProperty = asyncErrorHandler(async (req, res, next) => {
     deleteOldImages(images);
     deleteOldImages(files);
 
-    Property.deleteOne({ _id: req.params.id })
+    Property.deleteOne({ _id: property._id })
         .then(result => {
             if (result.deletedCount === 1) {
                 res.status(201).json({
