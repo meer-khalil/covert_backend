@@ -1,7 +1,7 @@
 require('dotenv').config()
 const app = require('./app');
-const connectCloudinary = require('./config/connectCloudinary');
 const connectDatabase = require('./config/database');
+
 // const cloudinary = require('cloudinary');
 const PORT = process.env.PORT || 4000;
 
@@ -13,7 +13,6 @@ process.on('uncaughtException', (err) => {
 });
 
 connectDatabase();
-connectCloudinary();
 
 const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`)

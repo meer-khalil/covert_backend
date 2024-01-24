@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { omit } = require('ramda');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -28,31 +29,6 @@ const userSchema = new mongoose.Schema({
         default: "user",
         enum: ['user', 'buyer', 'seller', 'admin']
     },
-    // cardDetails: {
-    //     cardName: {
-    //         type: String,
-    //         required: true,
-    //     },
-    //     cardNumber: {
-    //         type: String,
-    //         required: true
-    //     },
-    //     cardYear: {
-    //         type: String,
-    //         required: true,
-    //         length: 2
-    //     },
-    //     cardMonth: {
-    //         type: String,
-    //         required: true,
-    //         length: 2
-    //     },
-    //     cardCvv: {
-    //         type: String,
-    //         required: true,
-    //         length: 3
-    //     }
-    // },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -76,6 +52,10 @@ userSchema.methods.getJWTToken = function () {
         expiresIn: process.env.JWT_EXPIRE || '7d'
     });
 }
+
+userSchema.methods.hidePassword = function () {
+    return omit(["password", "__v", "_id"], this.toObject({ virtuals: true }));
+};
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);

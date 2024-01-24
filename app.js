@@ -1,12 +1,17 @@
 require("dotenv").config();
 const express = require("express");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const passport = require("passport");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+
 const stripe = require("./config/stripe");
 const Payment = require("./models/paymentModel");
-const User = require('./models/userModel');
+const User = require('./models/user.model');
+const { initRoutes } = require("./routes/index");
 const app = express();
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
@@ -196,7 +201,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 
-const user = require("./routes/userRoute");
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+const user = require("./routes/user.routes");
 const property = require("./routes/propertyRoute");
 const pages = require("./routes/pagesRoute");
 const blog = require("./routes/blogRoute");
@@ -207,9 +215,10 @@ const payment = require("./routes/paymentRoute");
 const data = require('./routes/dataRoute');
 
 
+
 app.use(express.static(path.join(__dirname, "public")))
 
-app.use("/api/v1", user);
+initRoutes(app)
 app.use("/api/v1", property);
 app.use("/api/v1", pages);
 app.use("/api/v1", blog);
