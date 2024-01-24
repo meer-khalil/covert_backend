@@ -1,12 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
-const passport = require("passport");
+const cors = require("cors");
 const path = require("path");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
 
 const stripe = require("./config/stripe");
 const Payment = require("./models/paymentModel");
