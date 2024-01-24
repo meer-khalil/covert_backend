@@ -1,4 +1,5 @@
 const State = require("../models/Data/stateModel");
+const getState = require("./getState");
 
 async function addStateToList(zipcode) {
   if (zipcode) {

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const getState = require('../utils/getState');
 const getCityNameByZipcode = require('../utils/getCityByZipcode');
 const { default: axios } = require('axios');
+const { default: slugify } = require('slugify');
 
 const propertySchema = new mongoose.Schema({
     // title: {
