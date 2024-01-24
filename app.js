@@ -14,6 +14,10 @@ const User = require('./models/user.model');
 const { initRoutes } = require("./routes/index");
 const app = express();
 
+
+app.use(cors());
+
+
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = "whsec_2b4c95f516fe1aa231d8c5ced31df621808926627a8f02f5c05ceab9e1ce3bb6";
 
@@ -199,12 +203,10 @@ app.use(bodyParser.json({ limit: "10mb" }));
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
 
 // app.use(passport.initialize());
 // app.use(passport.session());
 
-const user = require("./routes/user.routes");
 const property = require("./routes/propertyRoute");
 const pages = require("./routes/pagesRoute");
 const blog = require("./routes/blogRoute");
