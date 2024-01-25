@@ -5,13 +5,6 @@ const { default: axios } = require('axios');
 const { default: slugify } = require('slugify');
 
 const propertySchema = new mongoose.Schema({
-    // title: {
-    //     type: String,
-    //     trim: true
-    // },
-    // description: {
-    //     type: String
-    // },
     price: {
         type: Number
     },
