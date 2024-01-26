@@ -7,6 +7,7 @@ const ErrorHandler = require('../utils/errorHandler');
 
 const { validateRegisterInput, validateLoginInput } = require("../validations/user.validation");
 const UserService = require('../services/user.service');
+const sendEmail = require('../utils/sendEmail');
 
 exports.getUser = (req, res) => {
     const user = req.user;
@@ -57,7 +58,18 @@ exports.createUser = async (req, res, next) => {
     }
 
     User.create(req.body)
-        .then((user) => {
+        .then(async (user) => {
+            let mailOptions = {
+                from: 'info@covertnest.com',
+                to: user.email,
+                subject: 'Reset Your Password',
+                html: `
+                <h1>Successfully Created Account</h1>
+                <p>Here you can Login: <a href="${req.get('host')}/login">Login</a></p>
+                `
+            };
+
+            await sendEmail(mailOptions)
             sendToken(user, 201, res)
         })
         .catch((err) => {
@@ -88,3 +100,75 @@ exports.loginUser = async (req, res, next) => {
             res.status(500).json({ message: "Something Went Wrong" });
         })
 }
+
+exports.forgotPassword = async (req, res, next) => {
+
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+        return next(new ErrorHandler("User Not Found", 404));
+    }
+
+    const resetToken = await user.getResetPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    // const resetPasswordUrl = `${req.protocol}://${req.get("host")}/password/reset/${resetToken}`;
+    const resetPasswordUrl = `https://${req.get("host")}/password/reset/${resetToken}`;
+    // const resetPasswordUrl = `http://localhost:3000/password/reset/${resetToken}`;
+
+    // const message = `Your password reset token is : \n\n ${resetPasswordUrl}`;
+
+    try {
+        let mailOptions = {
+            from: 'info@covertnest.com',
+            to: user.email,
+            subject: 'Reset Your Password',
+            html: `
+            <p>Here is your link for reseting Password: <a href="${resetPasswordUrl}">Click</a></p>
+            `
+        };
+
+        await sendEmail(mailOptions)
+
+        res.status(200).json({
+            success: true,
+            message: `Email sent to ${user.email} successfully`,
+        });
+
+    } catch (error) {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save({ validateBeforeSave: false });
+        return res.status(500).json({ message: "Something Went Wrong" })
+    }
+}
+
+
+// Reset Password
+exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
+
+    console.log('Here is for Password Reset');
+
+    // create hash token
+    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        return res.status(404).json({
+            message: "Invalid reset password token"
+        });
+    }
+
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+    sendToken(user, 200, res);
+});
