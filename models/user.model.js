@@ -58,7 +58,11 @@ userSchema.methods.hidePassword = function () {
 };
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
+    console.log('pass: ', enteredPassword);
+    let check = await bcrypt.compare(enteredPassword, this.password);
+    console.log('this.password: ', this.password);
+    console.log('check: ', check);
+    return check
 }
 
 userSchema.methods.getResetPasswordToken = async function () {

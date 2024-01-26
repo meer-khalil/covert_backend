@@ -73,12 +73,15 @@ exports.loginUser = async (req, res, next) => {
 
     let sanitizedInput = sanitize(req.body);
     User.findOne({ email: sanitizedInput.email.toLowerCase() }).select("+password")
-        .then((user) => {
+        .then(async (user) => {
             if (!user) {
                 return res.status(401).json({ message: "User Not Found" });
             }
-            if (user.comparePassword(sanitizedInput.password)) {
+            let passCheck = await user.comparePassword(sanitizedInput.password)
+            if (passCheck) {
                 sendToken(user, 201, res)
+            } else {
+                res.status(500).json({ message: "Password is Wrong!" });
             }
         }).catch((error) => {
             console.error(error);
