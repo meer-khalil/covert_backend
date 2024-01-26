@@ -62,7 +62,7 @@ exports.createUser = async (req, res, next) => {
 
     User.create(req.body)
         .then(async (user) => {
-            const resetPasswordUrl = `https://${frontend}/login`;
+            const resetPasswordUrl = `https://${frontend_url}/login`;
             let mailOptions = {
                 from: 'info@covertnest.com',
                 to: user.email,
@@ -111,7 +111,7 @@ exports.forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-        return next(new ErrorHandler("User Not Found", 404));
+        return res.status(500).json({ message: "This Email is not Registered" })
     }
 
     const resetToken = await user.getResetPasswordToken();
@@ -119,7 +119,7 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // const resetPasswordUrl = `${req.protocol}://${req.get("host")}/password/reset/${resetToken}`;
-    const resetPasswordUrl = `https://${frontend}/password/reset/${resetToken}`;
+    const resetPasswordUrl = `https://${frontend_url}/password/reset/${resetToken}`;
     // const resetPasswordUrl = `http://localhost:3000/password/reset/${resetToken}`;
 
     // const message = `Your password reset token is : \n\n ${resetPasswordUrl}`;
