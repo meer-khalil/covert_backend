@@ -1,5 +1,5 @@
 const sanitize = require('mongo-sanitize');
-
+const crypto = require('crypto');
 const User = require('../models/user.model');
 const asyncErrorHandler = require('../middlewares/asyncErrorHandler');
 const sendToken = require('../utils/sendToken');
