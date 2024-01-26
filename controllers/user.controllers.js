@@ -9,6 +9,9 @@ const { validateRegisterInput, validateLoginInput } = require("../validations/us
 const UserService = require('../services/user.service');
 const sendEmail = require('../utils/sendEmail');
 
+
+// FrontEnd URL
+let frontend_url = 'covertnest.com'
 exports.getUser = (req, res) => {
     const user = req.user;
 
@@ -59,13 +62,14 @@ exports.createUser = async (req, res, next) => {
 
     User.create(req.body)
         .then(async (user) => {
+            const resetPasswordUrl = `https://${frontend}/login`;
             let mailOptions = {
                 from: 'info@covertnest.com',
                 to: user.email,
-                subject: 'Reset Your Password',
+                subject: 'User Created Successfully',
                 html: `
                 <h1>Successfully Created Account</h1>
-                <p>Here you can Login: <a href="${req.get('host')}/login">Login</a></p>
+                <p>Here You can Login: <a href="${resetPasswordUrl}">Click</a></p>
                 `
             };
 
@@ -102,6 +106,7 @@ exports.loginUser = async (req, res, next) => {
 }
 
 exports.forgotPassword = async (req, res, next) => {
+    console.log('req: ', req);
 
     const user = await User.findOne({ email: req.body.email });
 
@@ -114,7 +119,7 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // const resetPasswordUrl = `${req.protocol}://${req.get("host")}/password/reset/${resetToken}`;
-    const resetPasswordUrl = `https://${req.get("host")}/password/reset/${resetToken}`;
+    const resetPasswordUrl = `https://${frontend}/password/reset/${resetToken}`;
     // const resetPasswordUrl = `http://localhost:3000/password/reset/${resetToken}`;
 
     // const message = `Your password reset token is : \n\n ${resetPasswordUrl}`;
