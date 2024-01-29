@@ -112,7 +112,6 @@ exports.createProperty = asyncErrorHandler(async (req, res, next) => {
 
 
 exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
-    console.log('here is request');
 
     const body = req.body
     let property = JSON.parse(body.property)

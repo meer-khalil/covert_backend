@@ -5,7 +5,7 @@ const ErrorHandler = require("../utils/errorHandler");
 
 const cloudinary = require("cloudinary");
 const SearchFeatures = require("../utils/searchFeatures");
-const { deleteOldImages } = require("./propertyController");
+const { deleteOldImages } = require("./property.controller");
 const { query } = require("express");
 
 

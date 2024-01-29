@@ -12,7 +12,7 @@ const {
   getWikiDetail,
   getAllStates,
   getPropertyDetails,
-} = require("../controllers/propertyController");
+} = require("../controllers/property.controller");
 
 const { isAuthenticatedUser, authorizeRoles } = require("../middlewares/auth");
 const upload = require('../middlewares/upload')

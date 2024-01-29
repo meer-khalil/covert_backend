@@ -29,14 +29,7 @@ class SearchFeatures {
 
         // if the rentalicome is atleast 1% of price, retrieve the document.
         if (this.queryString['1% rule']) {
-            this.query = this.query.find({
-                $expr: {
-                    $gte: [
-                        { $multiply: ['$rentalIncome', 100] },
-                        '$newPrice'
-                    ]
-                }
-            })
+            this.query = this.query.find({ one_percent: true })
         }
 
         // if discount applied

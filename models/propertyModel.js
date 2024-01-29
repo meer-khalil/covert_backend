@@ -98,6 +98,7 @@ const propertySchema = new mongoose.Schema({
     hasHoa: String,
     finance_cash: { type: Boolean },
     finance_sellerFinance: { type: Boolean },
+    one_percent: { type: Boolean },
     finance_mortgage: { type: Boolean, default: true },
     slug: {
         type: String,
