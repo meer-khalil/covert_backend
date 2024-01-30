@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { toString } = require('ramda');
+const { default: slugify } = require('slugify');
 
 const blogSchema = new mongoose.Schema({
     title: {
@@ -35,6 +37,11 @@ const blogSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    slug: {
+        type: String,
+        unique: true,
+        default: function () { return slugify(this.title) }
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: "User",
@@ -45,5 +52,6 @@ const blogSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
 
 module.exports = mongoose.model('Blog', blogSchema);

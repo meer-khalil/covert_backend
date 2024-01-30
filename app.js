@@ -206,8 +206,8 @@ app.use(cookieParser());
 
 const property = require("./routes/propertyRoute");
 const pages = require("./routes/pagesRoute");
-const blog = require("./routes/blogRoute");
-const category = require('./routes/categoryRoute');
+const blog = require("./routes/blog.routes");
+const category = require('./routes/category.routes');
 const contact = require('./routes/contactRoute');
 const email = require('./routes/emailRoute');
 const payment = require("./routes/paymentRoute");

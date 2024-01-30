@@ -1,6 +1,6 @@
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
-const Blog = require("../models/blogModel");
-const Category = require('../models/categoryModel');
+const Blog = require("../models/blog.model");
+const Category = require('../models/category.model');
 const ErrorHandler = require("../utils/errorHandler");
 
 const cloudinary = require("cloudinary");
@@ -21,7 +21,7 @@ exports.createBlog = asyncErrorHandler(async (req, res, next) => {
     body.user = user.id;
 
     const blog = await Blog.create(body);
-
+    console.log('blog(created): ', blog);
     res.status(201).json(blog);
 
   } catch (error) {
@@ -31,14 +31,14 @@ exports.createBlog = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.getBlogDetails = asyncErrorHandler(async (req, res, next) => {
-  const blog = await Blog.findById(req.params.id)
+  const blog = await Blog.findOne({ slug: req.params.slug })
     .populate("user")
     .populate("tags")
 
   console.log('blog: ', blog);
 
   if (!blog) {
-    return next(new ErrorHandler("Blog Not Found", 404));
+    return res.status(404).json({ message: "Blog Not Found" })
   }
 
   res.status(200).json(blog);
@@ -51,7 +51,7 @@ exports.getBlogs = asyncErrorHandler(async (req, res, next) => {
   const resultPerPage = 12;
 
   console.log('query: ', query);
-  const searchFeature = new SearchFeatures(Blog.find({}).select({ "title": 1, "cover": 1 }).populate("tags"), req.query)
+  const searchFeature = new SearchFeatures(Blog.find({}).select({ "title": 1, slug: 1, "cover": 1 }).populate("tags"), req.query)
     .search()
     .filter();
 
@@ -96,10 +96,9 @@ exports.getBlogsByCategory = asyncErrorHandler(async (req, res, next) => {
 // Update Order Status ---ADMIN
 exports.updateBlog = asyncErrorHandler(async (req, res, next) => {
 
-  let { id } = req.params;
-  let blog = await Blog.findById({ _id: id });
+  let blog = await Blog.findOne({ slug: req.params.slug });
   if (!blog) {
-    return next(new ErrorHandler("Blog Not Found(Bachayi)", 404));
+    return res.status(404).json({ message: "Blog Not Found(Bachayi)" });
   }
 
   let body = JSON.parse(req.body.data);
@@ -110,7 +109,7 @@ exports.updateBlog = asyncErrorHandler(async (req, res, next) => {
     deleteOldImages([blog.cover])
   }
 
-  Blog.findByIdAndUpdate(id, body, {
+  Blog.findOneAndUpdate({ slug: req.params.slug }, body, {
     new: true,
     runValidators: true,
     useFindAndModify: false,
@@ -125,18 +124,15 @@ exports.updateBlog = asyncErrorHandler(async (req, res, next) => {
 // // Delete Order ---ADMIN
 exports.deleteBlog = asyncErrorHandler(async (req, res, next) => {
   try {
-    const post = await Blog.findOne({ _id: req.params.id });
+    const post = await Blog.findOne({ slug: req.params.slug });
     console.log("Post:", post);
     if (post) {
       try {
-        const result = await cloudinary.v2.uploader.destroy(
-          post.image.public_id
-        );
-        console.log("Image deleted from Cloudinary:", result);
+        deleteOldImages([post.cover])
       } catch (error) {
         console.error("Error deleting image from Cloudinary:", error);
       }
-      const result = await Blog.deleteOne({ _id: req.params.id });
+      const result = await Blog.deleteOne({ _id: post._id });
       if (result.acknowledged) {
         res.status(201).json({
           success: true,

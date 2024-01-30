@@ -1,6 +1,7 @@
 node_modules
 ImportData
 getarray.js
+updateBlogs.js
 
 public/**/*
 public/*
