@@ -104,6 +104,10 @@ const propertySchema = new mongoose.Schema({
         type: String,
         unique: true,
     },
+    sold: {
+        type: Boolean,
+        default: false
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: "User",

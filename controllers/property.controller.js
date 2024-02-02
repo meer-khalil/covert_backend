@@ -150,24 +150,33 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
 
 
     let propertyData = JSON.parse(req.body.property)
-
+    console.log('data', propertyData);
     let { oldImages } = req.body;
+
 
     oldImages = oldImages?.map((item) => JSON.parse(item))
 
-    let dImages = property?.images?.filter(e => {
-        let del = true;
-        for (let index = 0; index < oldImages?.length; index++) {
-            const element = oldImages[index];
-            if (element?._id === e._id) {
-                del = false
-                break;
+    let dImages = [];
+    if (oldImages) {
+        dImages = property?.images?.filter(e => {
+            let del = true;
+            for (let index = 0; index < oldImages?.length; index++) {
+                const element = oldImages[index];
+                if (element?._id == e._id) {
+                    /**
+                     * If you head cut by the sword then I think it is less painful and honorable
+                     * But what you will say if your opponent kill you with needle
+                     * More painful, More dishonorable
+                     */
+                    del = false
+                    break;
+                }
             }
-        }
-        if (del) {
-            return e;
-        }
-    })
+            if (del) {
+                return e;
+            }
+        })
+    }
 
     const uploadedImages = req?.files?.images;
     if (uploadedImages) {
@@ -184,6 +193,7 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
     }
 
     if (dImages) {
+        console.log('delete: ', dImages);
         deleteOldImages(dImages)
     }
 
@@ -192,13 +202,15 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
         runValidators: true,
         useFindAndModify: false,
     })
-        .then((property) => res.status(201).json(property))
+        .then((property) => {
+            // console.log('property: ', property);
+            res.status(201).json(property)
+        })
         .catch((error) => {
             console.error(error);
             res.status(500).json(error);
         })
 });
-
 
 function deleteOldImages(images) {
     images.forEach((image) => {
