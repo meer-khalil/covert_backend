@@ -30,7 +30,7 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
     let properties = await searchFeature.query;
     let filteredPropertiesCount = properties.length;
 
-    searchFeature.pagination(resultPerPage);
+    searchFeature.pagination(resultPerPage);    
 
     properties = await searchFeature.query.clone();
 

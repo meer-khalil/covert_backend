@@ -69,6 +69,10 @@ class SearchFeatures {
         if (this.queryString['published']) {
             this.query = this.query.find({ published: this.queryString['published'] })
         }
+
+        if (this.queryString['sold']) {
+            this.query = this.query.find({ sold: this.queryString['sold'] })
+        }
         return this;
     }
 
