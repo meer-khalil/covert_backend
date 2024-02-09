@@ -3,8 +3,8 @@ const asyncErrorHandler = require('../middlewares/asyncErrorHandler');
 
 let Payment = require('../models/paymentModel');
 
-const site = 'http://localhost:3000'
-// const site = 'https://www.covertnest.com'
+// const site = 'http://localhost:3000'
+const site = 'https://www.covertnest.com'
 
 const stripe = require('../config/stripe');
 
