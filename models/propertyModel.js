@@ -40,6 +40,9 @@ const propertySchema = new mongoose.Schema({
     city: {
         type: String
     },
+    description: {
+        type: String
+    },
     images: [
         {
             fieldname: String,

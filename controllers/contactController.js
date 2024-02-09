@@ -7,7 +7,7 @@ const sendEmail = require('../utils/sendEmail');
 
 // Create New Order
 exports.createContact = asyncErrorHandler(async (req, res, next) => {
-    
+
     console.log('Here is request');
 
     const { firstName, lastName, email, message } = req.body;
@@ -19,10 +19,17 @@ exports.createContact = asyncErrorHandler(async (req, res, next) => {
         text: `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nMessage: ${message}`
     };
 
-    
+
     try {
-        const check = await sendEmail(mailOptions)
-        console.log('cehck: ', check);
+        await sendEmail(mailOptions)
+        mailOptions = {
+            from: 'info@covertnest.com',
+            to: email,
+            subject: 'Your Information has been submitted',
+            text: `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nMessage: ${message}`
+        }
+        await sendEmail(mailOptions)
+
         if (!check) throw new Error("Email is not send");
 
         const contact = new Contact({
