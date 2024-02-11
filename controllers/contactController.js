@@ -21,15 +21,17 @@ exports.createContact = asyncErrorHandler(async (req, res, next) => {
 
 
     try {
-        await sendEmail(mailOptions)
+        let check = await sendEmail(mailOptions)
+        if (!check) throw new Error("Email is not send");
+
         mailOptions = {
             from: 'info@covertnest.com',
             to: email,
             subject: 'Your Information has been submitted',
             text: `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nMessage: ${message}`
         }
-        await sendEmail(mailOptions)
 
+        check = await sendEmail(mailOptions)
         if (!check) throw new Error("Email is not send");
 
         const contact = new Contact({
