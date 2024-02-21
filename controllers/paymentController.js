@@ -53,7 +53,7 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
                     If you are using the live key then you have also need to
                     change the price to live_price
                 */
-                price: test_price,
+                price: live_price,
                 quantity: 1,
             }],
             mode: 'subscription',
