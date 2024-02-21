@@ -143,6 +143,7 @@ app.post(
 
             User.create(userData)
               .then(async (user) => {
+                console.error('user created: ', user);
                 const loginLink = `https://${frontend_url}/login`;
                 let mailOptions = {
                   from: 'info@covertnest.com',
