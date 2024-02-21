@@ -62,14 +62,14 @@ exports.createUser = async (req, res, next) => {
 
     User.create(req.body)
         .then(async (user) => {
-            const resetPasswordUrl = `https://${frontend_url}/login`;
+            const loginLink = `https://${frontend_url}/login`;
             let mailOptions = {
                 from: 'info@covertnest.com',
                 to: user.email,
                 subject: 'User Created Successfully',
                 html: `
                 <h1>Successfully Created Account</h1>
-                <p>Here You can Login: <a href="${resetPasswordUrl}">Click</a></p>
+                <p>Here You can Login: <a href="${loginLink}">Click</a></p>
                 `
             };
 

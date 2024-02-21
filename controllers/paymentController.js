@@ -2,11 +2,14 @@ require('dotenv').config()
 const asyncErrorHandler = require('../middlewares/asyncErrorHandler');
 
 let Payment = require('../models/paymentModel');
+let User = require('../models/user.model');
 
 // const site = 'http://localhost:3000'
 const site = 'https://www.covertnest.com'
+const sanitize = require('mongo-sanitize');
 
 const stripe = require('../config/stripe');
+const { validateRegisterInput } = require('../validations/user.validation');
 
 const plans = new Map([
     ['Starter', { priceInCent: 999, requestlimit: 60, noOfFilesUploadedLimit: 10, name: 'Starter' }],
@@ -21,10 +24,21 @@ let live_price = 'price_1OibIvF5gKnU5g5l9xXGm7J4'
 exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 
 
-    console.log(req.body);
+    const { error } = validateRegisterInput(req.body);
+    if (error) return res.status(422).json({ message: error.details[0].message });
+
+    let sanitizedInput = sanitize(req.body);
+
+
+    let user = await User.findOne({ email: sanitizedInput.email.toLowerCase() });
+
+    if (user) {
+        return res.status(409).json({ message: "Email already registered. Take an another email" });
+    }
+
     const customer = await stripe.customers.create({
         metadata: {
-            userId: req.user.id,
+            ...sanitizedInput
         }
     });
 
@@ -32,16 +46,6 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 
         const session = await stripe.checkout.sessions.create({
             customer: customer.id,
-            // line_items: [{
-            //     price_data: {
-            //         currency: 'usd',
-            //         unit_amount: plan.priceInCent,
-            //         product_data: {
-            //             name: plan.name
-            //         },
-            //     },
-            //     quantity: 1,
-            // }],
             payment_method_types: ['card'],
             line_items: [{
                 /*

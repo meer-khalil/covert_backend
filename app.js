@@ -15,6 +15,8 @@ const app = express();
 app.use(cors());
 
 
+let frontend_url = 'covertnest.com'
+
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = "whsec_2b4c95f516fe1aa231d8c5ced31df621808926627a8f02f5c05ceab9e1ce3bb6";
 
@@ -136,50 +138,35 @@ app.post(
           .retrieve(checkoutSessionCompleted.customer)
           .then(async (customer) => {
             console.error("Customer: ", customer);
-            let userId = customer.metadata.userId;
-            // let plan = customer.metadata.plan;
-            // plan = JSON.parse(plan);
-            let payment = await Payment.create({
-              payment: checkoutSessionCompleted,
-              user: userId,
-            });
+            let userData = customer.metadata;
+            userData.role = 'buyer'
 
-            console.error("Entry Added: ", payment);
-
-            const user = await User.findOne({ _id: userId });
-
-            if (user) {
-              try {
-                const updatedUser = await User.findByIdAndUpdate(user._id, {
-                  role: 'buyer'
-                }, { new: true });
-
-                if (updatedUser) {
-                  console.error("User Subscribed:", updatedUser);
-
-
-                  // let mailOptions = {
-                  //   from: "info@teachassistai.com",
-                  //   to: user.email,
-                  //   subject: "Purchased Plan Information",
-                  //   html: `
-                  //   <h1>Congratulations!</h1>
-                  //   <h4>You have successfully purchased the ${plan["name"]} Plan</h4>
-                  //   <h6>You now have the following benefits</h6>
-                  //   ${emailBody[plan["name"]]}
-                  //   <p>Thank You!</p>
-                  //   `,
-                  // };
-                  // await sendEmail(mailOptions);
-                } else {
-                  console.error("User not found or no updates were made.");
-                }
-              } catch (err) {
-                console.error("Error updating user plan:", err);
-              }
-            } else {
-              console.error("User Not Found ");
-            }
+            User.create(userData)
+              .then(async (user) => {
+                const loginLink = `https://${frontend_url}/login`;
+                let mailOptions = {
+                  from: 'info@covertnest.com',
+                  to: user.email,
+                  subject: 'User Created Successfully',
+                  html: `
+                    <h1>Congratulations!</h1>
+                    <h4>Your Account has created</h4>
+                    <h6>You can login <a href="${loginLink}">here</a></h6>
+                    ${emailBody[plan["name"]]}
+                    <p>Thank You!</p>
+                    `
+                };
+                let payment = await Payment.create({
+                  payment: checkoutSessionCompleted,
+                  user: user._id
+                });
+                console.error("Entry Added: ", payment);
+                await sendEmail(mailOptions)
+              })
+              .catch((err) => {
+                console.error(err);
+                return response.status(500).json(err)
+              })
           })
           .catch((err) => {
             console.error("Error: ", err.message);
