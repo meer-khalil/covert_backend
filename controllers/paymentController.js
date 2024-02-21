@@ -37,6 +37,7 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
     }
 
     const customer = await stripe.customers.create({
+        email: sanitizedInput.email.toLowerCase(),
         metadata: {
             ...sanitizedInput
         }
@@ -56,8 +57,8 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
                 quantity: 1,
             }],
             mode: 'subscription',
-            success_url: `${site}/buy`,
-            cancel_url: `${site}/buy`
+            success_url: `${site}/login`,
+            cancel_url: `${site}/signup`
         })
 
         res.status(200).json({
