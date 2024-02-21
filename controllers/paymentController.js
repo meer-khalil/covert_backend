@@ -17,7 +17,8 @@ const plans = new Map([
 
 exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 
-    console.error('UserID: ', req.user.id);
+
+    console.log(req.body);
     const customer = await stripe.customers.create({
         metadata: {
             userId: req.user.id,

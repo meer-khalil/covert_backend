@@ -53,9 +53,11 @@ app.post(
             );
 
             let payment = await Payment.findOne({ "payment.subscription": subscription_id })
+            console.error('Before retreiving the User: ', payment);
             let user = await User.findOne({ _id: payment.user });
             user.role = 'buyer';
-            await user.save();
+            user = await user.save();
+            console.error('User after update: ', user);
             console.error("Default payment method set for subscription:" + payment_intent.payment_method);
           } catch (err) {
             console.error(err);
