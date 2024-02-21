@@ -15,6 +15,9 @@ const plans = new Map([
 ]);
 
 
+let test_price = 'price_1ONstPF5gKnU5g5lkXpKSQmj'
+let live_price = 'price_1OibIvF5gKnU5g5l9xXGm7J4'
+
 exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 
 
@@ -41,7 +44,7 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
             // }],
             payment_method_types: ['card'],
             line_items: [{
-                price: 'price_1OibIvF5gKnU5g5l9xXGm7J4',
+                price: test_price,
                 quantity: 1,
             }],
             mode: 'subscription',
