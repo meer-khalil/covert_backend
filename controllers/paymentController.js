@@ -44,6 +44,10 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
             // }],
             payment_method_types: ['card'],
             line_items: [{
+                /*
+                    If you are using the live key then you have also need to
+                    change the price to live_price
+                */
                 price: test_price,
                 quantity: 1,
             }],
