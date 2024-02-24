@@ -148,12 +148,11 @@ app.post(
                 let mailOptions = {
                   from: 'info@covertnest.com',
                   to: user.email,
-                  subject: 'User Created Successfully',
+                  subject: 'User Created Successfully | Payment Done',
                   html: `
                     <h1>Congratulations!</h1>
-                    <h4>Your Account has created</h4>
+                    <h4>Your Account has created successfuly</h4>
                     <h6>You can login <a href="${loginLink}">here</a></h6>
-                    ${emailBody[plan["name"]]}
                     <p>Thank You!</p>
                     `
                 };
