@@ -9,6 +9,7 @@ const stripe = require("./config/stripe");
 const Payment = require("./models/paymentModel");
 const User = require('./models/user.model');
 const { initRoutes } = require("./routes/index");
+const sendEmail = require("./utils/sendEmail");
 const app = express();
 
 
@@ -201,6 +202,7 @@ const contact = require('./routes/contactRoute');
 const email = require('./routes/emailRoute');
 const payment = require("./routes/paymentRoute");
 const data = require('./routes/dataRoute');
+
 
 
 
