@@ -19,7 +19,7 @@ const plans = new Map([
 
 
 let test_price = 'price_1ONstPF5gKnU5g5lkXpKSQmj'
-let live_price = 'price_1OibIvF5gKnU5g5l9xXGm7J4'
+let live_price = 'price_1OnP7lF5gKnU5g5lDE0rekte'
 
 exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 
