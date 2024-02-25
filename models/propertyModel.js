@@ -119,12 +119,31 @@ const propertySchema = new mongoose.Schema({
 }, { timestamps: true });
 
 propertySchema.pre('save', async function (next) {
-    try {
-        // Check if the zipcode field has been modified
-        if (!this.isModified('zipcode')) {
-            return next();
-        }
 
+    try {
+
+        console.log('address: ', this.address);
+        this.slug = slugify(this.address, { lower: true });
+
+        const slugExists = await Property.findOne({ slug: this.slug });
+
+        // If the slug already exists, make it unique
+        if (slugExists) {
+            // You can append a counter, timestamp, or any other unique identifier to make it unique
+            this.slug = `${this.slug}-${Date.now()}`;
+        }
+    } catch (error) {
+        // Handle errors appropriately
+        console.log('Error: ', error);
+        next(error);
+    }
+
+    // Check if the zipcode field has been modified
+    if (!this.isModified('zipcode')) {
+        return next();
+    }
+
+    try {
         const zipcode = this.zipcode;
         console.log('zipcode: ', zipcode);
         const response = await axios.get(`https://api.zippopotam.us/us/${zipcode}`);
@@ -135,17 +154,14 @@ propertySchema.pre('save', async function (next) {
 
         let state = getState(this.zipcode)?.long
         this.state = state || ''
-
-        this.slug = slugify(this.address, { lower: true });
-
-        // Continue with the save operation
-        next();
     } catch (error) {
-        // Handle errors appropriately
-        console.log('Error: ', error);
-        next(error);
+        console.log('zipcode is not provided');
     }
+
+    // Continue with the save operation
+    next();
 });
-module.exports = mongoose.model('Property', propertySchema);
+let Property = mongoose.model('Property', propertySchema);
+module.exports = Property;
 
 // 0317-3311154

@@ -30,7 +30,7 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
     let properties = await searchFeature.query;
     let filteredPropertiesCount = properties.length;
 
-    searchFeature.pagination(resultPerPage);    
+    searchFeature.pagination(resultPerPage);
 
     properties = await searchFeature.query.clone();
 
@@ -126,6 +126,8 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
     property.files = uploadedFiles
     property.images = uploadedImages
     property.user = req.user.id
+
+    console.log('prperty: ', property);
 
     try {
         const propertyDoc = await Property.create(property);
