@@ -385,7 +385,7 @@ exports.getWikiDetail = asyncErrorHandler(async (req, res, next) => {
         );
         const data = response.data;
         console.log('Data: ', data);
-        res.json({
+        res.status(201).json({
             data,
             city
         });
