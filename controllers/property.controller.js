@@ -41,14 +41,35 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
-// Get All Products
+// Get Past Deals
 exports.getPastDeals = asyncErrorHandler(async (req, res, next) => {
 
-    const properties = await Property.find({ showHome: true })
+    const properties = await Property.find({ sold: true })
         .select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold');
 
     res.status(200).json({
         properties
+    });
+});
+
+// Get Sold Deals
+exports.getSoldProperties = asyncErrorHandler(async (req, res, next) => {
+
+    const resultPerPage = 4;
+
+    const searchFeature = new SearchFeatures(Property.find({ sold: true }).select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold'), req.query);
+
+    let properties = await searchFeature.query;
+    let filteredPropertiesCount = properties.length;
+
+    searchFeature.pagination(resultPerPage);
+
+    properties = await searchFeature.query.clone();
+
+    res.status(200).json({
+        properties,
+        resultPerPage,
+        filteredPropertiesCount,
     });
 });
 

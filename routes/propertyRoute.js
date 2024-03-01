@@ -13,6 +13,7 @@ const {
   getAllStates,
   getPropertyDetails,
   getPastDeals,
+  getSoldProperties,
 } = require("../controllers/property.controller");
 
 const { isAuthenticatedUser, authorizeRoles } = require("../middlewares/auth");
@@ -21,6 +22,7 @@ const router = express.Router();
 
 router.route("/properties").get(isAuthenticatedUser, getAllProperties);
 router.route("/properties/past-deals").get(getPastDeals);
+router.route("/properties/sold").get(getSoldProperties);
 
 router.route("/properties/all").get(getProperties);
 
