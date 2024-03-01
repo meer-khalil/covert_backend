@@ -41,6 +41,16 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
+// Get All Products
+exports.getPastDeals = asyncErrorHandler(async (req, res, next) => {
+
+    const properties = await Property.find({ showHome: true })
+        .select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold');
+
+    res.status(200).json({
+        properties
+    });
+});
 
 exports.getProperties = asyncErrorHandler(async (req, res, next) => {
 

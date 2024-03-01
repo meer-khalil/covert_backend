@@ -12,6 +12,7 @@ const {
   getWikiDetail,
   getAllStates,
   getPropertyDetails,
+  getPastDeals,
 } = require("../controllers/property.controller");
 
 const { isAuthenticatedUser, authorizeRoles } = require("../middlewares/auth");
@@ -19,6 +20,8 @@ const upload = require('../middlewares/upload')
 const router = express.Router();
 
 router.route("/properties").get(isAuthenticatedUser, getAllProperties);
+router.route("/properties/past-deals").get(getPastDeals);
+
 router.route("/properties/all").get(getProperties);
 
 router.route('/seller/properties/new').post(isAuthenticatedUser, upload.fields([{ name: 'images' }, { name: 'files' }]), createPropertyBySeller)
