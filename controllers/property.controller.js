@@ -14,7 +14,6 @@ const getCityNameByZipcode = require('../utils/getCityByZipcode');
 const State = require('../models/Data/stateModel');
 const addStateToList = require('../utils/addStateToList');
 
-
 // Get All Products
 exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
 
@@ -45,7 +44,7 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
 exports.getPastDeals = asyncErrorHandler(async (req, res, next) => {
 
     const properties = await Property.find({ sold: true })
-        .select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold');
+        .select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold rentalIncome');
 
     res.status(200).json({
         properties
