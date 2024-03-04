@@ -43,7 +43,7 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
 // Get Past Deals
 exports.getPastDeals = asyncErrorHandler(async (req, res, next) => {
 
-    const properties = await Property.find({ sold: true })
+    const properties = await Property.find({ showHome: true })
         .select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold rentalIncome');
 
     res.status(200).json({
@@ -179,9 +179,8 @@ exports.updateProperty = asyncErrorHandler(async (req, res, next) => {
     if (!property) {
         return next(new ErrorHandler("Property Not Found", 404));
     }
-
-
-    let propertyData = JSON.parse(req.body.property)
+    let propertyData = JSON.parse(req.body.property);
+    console.log('property data: ', propertyData);
     console.log('data', propertyData);
     let { oldImages } = req.body;
 
