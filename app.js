@@ -162,7 +162,11 @@ app.post(
                   user: user._id
                 });
                 console.error("Entry Added: ", payment);
-                await sendEmail(mailOptions)
+                try {
+                  await sendEmail(mailOptions)
+                } catch (error) {
+                  console.error(error);
+                }
               })
               .catch((err) => {
                 console.error(err);

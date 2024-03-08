@@ -29,15 +29,16 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 
     let sanitizedInput = sanitize(req.body);
 
+    sanitizedInput = sanitizedInput.email.toLowerCase();
 
-    let user = await User.findOne({ email: sanitizedInput.email.toLowerCase() });
+    let user = await User.findOne({ email: sanitizedInput.email });
 
     if (user) {
         return res.status(409).json({ message: "Email already registered. Take an another email" });
     }
 
     const customer = await stripe.customers.create({
-        email: sanitizedInput.email.toLowerCase(),
+        email: sanitizedInput.email,
         metadata: {
             ...sanitizedInput
         }
