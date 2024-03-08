@@ -44,7 +44,7 @@ exports.getAllProperties = asyncErrorHandler(async (req, res, next) => {
 exports.getPastDeals = asyncErrorHandler(async (req, res, next) => {
 
     const properties = await Property.find({ showHome: true })
-        .select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold rentalIncome');
+        .select('address images defaultImage price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold rentalIncome');
 
     res.status(200).json({
         properties
@@ -56,7 +56,7 @@ exports.getSoldProperties = asyncErrorHandler(async (req, res, next) => {
 
     const resultPerPage = 4;
 
-    const searchFeature = new SearchFeatures(Property.find({ sold: true }).select('address images price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold'), req.query);
+    const searchFeature = new SearchFeatures(Property.find({ sold: true }).select('address images defaultImage price units actualCAP proFormaCAP occupancy builtYear sqFt propertyType sold'), req.query);
 
     let properties = await searchFeature.query;
     let filteredPropertiesCount = properties.length;
