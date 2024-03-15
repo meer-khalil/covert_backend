@@ -28,10 +28,7 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
     if (error) return res.status(422).json({ message: error.details[0].message });
 
     let sanitizedInput = sanitize(req.body);
-
-    console.log('hello: ', sanitizedInput);
     sanitizedInput.email = sanitizedInput.email.toLowerCase();
-    console.log('hello: ', sanitizedInput);
 
     let user = await User.findOne({ email: sanitizedInput.email });
 
