@@ -8,6 +8,7 @@ async function getCityNameByZipcode(zipCode) {
     const cityName = response.data.places[0]['place name'];
 
     console.log(`The city for zip code ${zipCode} is: ${cityName}`);
+
     return cityName
   } catch (error) {
     console.error(`Error fetching city information: ${error.message}`);

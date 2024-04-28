@@ -406,6 +406,12 @@ exports.getWikiDetail = asyncErrorHandler(async (req, res, next) => {
 
     console.log('Request Made: ', query);
     let city = await getCityNameByZipcode(query);
+
+    // Handling special case, Wiki adds ,_Texas with Laredo city name, its a special case.
+    if(city === "Laredo") {
+        city = "Laredo,_Texas";
+    }
+
     console.log("City: ", city);
 
     try {
