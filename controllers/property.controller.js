@@ -108,7 +108,8 @@ exports.getAdminProperties = asyncErrorHandler(async (req, res, next) => {
 // Create Product ---ADMIN
 exports.createProperty = asyncErrorHandler(async (req, res, next) => {
 
-    console.log('body: ', req.body);
+    console.log('[createProperty] BODY: ', req.body);
+    console.log("[createProperty] FILES: ", req.files);
 
     const uploadedImages = req?.files?.images;
 
@@ -143,6 +144,9 @@ exports.createProperty = asyncErrorHandler(async (req, res, next) => {
 
 exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
 
+    console.log('[createPropertyBySeller] BODY: ', req.body);
+    console.log("[createPropertyBySeller] FILES: ", req.files);
+
     const body = req.body
     let property = JSON.parse(body.property)
 
@@ -151,8 +155,18 @@ exports.createPropertyBySeller = asyncErrorHandler(async (req, res, next) => {
     addStateToList(zipcode);
 
     const uploadedImages = req.files['images'];
-    const uploadedFiles = req.files['files'];
+    let uploadedFiles = req.files['files'];
 
+    if (uploadedFiles?.length > 0) {
+        uploadedFiles = uploadedFiles.map((file, index) => {
+            return {
+                ...file,
+                label: property.fileLabels[index]
+            }
+        })
+    }
+
+    delete property.fileLabels;
     property.files = uploadedFiles
     property.images = uploadedImages
     property.user = req.user.id

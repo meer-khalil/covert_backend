@@ -65,7 +65,8 @@ const propertySchema = new mongoose.Schema({
             destination: String,
             filename: String,
             path: String,
-            size: Number
+            size: Number,
+            label: String, // This is the label for the file
         }
     ],
     category: {
