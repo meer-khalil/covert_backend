@@ -5,3 +5,4 @@ updateBlogs.js
 
 public/**/*
 public/*
+.env
