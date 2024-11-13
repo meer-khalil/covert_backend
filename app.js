@@ -7,19 +7,18 @@ const cookieParser = require("cookie-parser");
 
 const stripe = require("./config/stripe");
 const Payment = require("./models/paymentModel");
-const User = require('./models/user.model');
+const User = require("./models/user.model");
 const { initRoutes } = require("./routes/index");
 const sendEmail = require("./utils/sendEmail");
 const app = express();
 
-
 app.use(cors());
 
-
-let frontend_url = 'covertnest.com'
+let frontend_url = "covertnest.com";
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret = "whsec_2b4c95f516fe1aa231d8c5ced31df621808926627a8f02f5c05ceab9e1ce3bb6";
+const endpointSecret =
+  "whsec_2b4c95f516fe1aa231d8c5ced31df621808926627a8f02f5c05ceab9e1ce3bb6";
 
 // Match the raw body to content type application/json
 // If you are using Express v4 - v4.16 you need to use body-parser, not express, to retrieve the request body
@@ -35,49 +34,58 @@ app.post(
 
     // Handle the event
     switch (event.type) {
-      case 'invoice.payment_succeeded': {
-        const dataObject = event.data.object;
-        if (dataObject['billing_reason'] == 'subscription_create') {
-          // The subscription automatically activates after successful payment
-          // Set the payment method used to pay the first invoice
-          // as the default payment method for that subscription
-          const subscription_id = dataObject['subscription']
-          const payment_intent_id = dataObject['payment_intent']
+      case "invoice.payment_succeeded":
+        {
+          const dataObject = event.data.object;
+          if (dataObject["billing_reason"] == "subscription_create") {
+            // The subscription automatically activates after successful payment
+            // Set the payment method used to pay the first invoice
+            // as the default payment method for that subscription
+            const subscription_id = dataObject["subscription"];
+            const payment_intent_id = dataObject["payment_intent"];
 
-          // Retrieve the payment intent used to pay the subscription
-          const payment_intent = await stripe.paymentIntents.retrieve(payment_intent_id);
-
-          try {
-            const subscription = await stripe.subscriptions.update(
-              subscription_id,
-              {
-                default_payment_method: payment_intent.payment_method,
-              },
+            // Retrieve the payment intent used to pay the subscription
+            const payment_intent = await stripe.paymentIntents.retrieve(
+              payment_intent_id
             );
 
-            let payment = await Payment.findOne({ "payment.subscription": subscription_id })
-            console.error('Before retreiving the User: ', payment);
-            let user = await User.findOne({ _id: payment.user });
-            user.role = 'buyer';
-            user = await user.save();
-            console.error('User after update: ', user);
-            console.error("Default payment method set for subscription:" + payment_intent.payment_method);
-          } catch (err) {
-            console.error(err);
-            console.error(`⚠️  Falied to update the default payment method for subscription: ${subscription_id}`);
+            try {
+              const subscription = await stripe.subscriptions.update(
+                subscription_id,
+                {
+                  default_payment_method: payment_intent.payment_method,
+                }
+              );
+
+              let payment = await Payment.findOne({
+                "payment.subscription": subscription_id,
+              });
+              console.error("Before retreiving the User: ", payment);
+              let user = await User.findOne({ _id: payment.user });
+              user.role = "buyer";
+              user = await user.save();
+              console.error("User after update: ", user);
+              console.error(
+                "Default payment method set for subscription:" +
+                  payment_intent.payment_method
+              );
+            } catch (err) {
+              console.error(err);
+              console.error(
+                `⚠️  Falied to update the default payment method for subscription: ${subscription_id}`
+              );
+            }
           }
-        };
-      }
+        }
         break;
-      case 'invoice.finalized':
-        console.error('Event: invoice.finalized');
+      case "invoice.finalized":
+        console.error("Event: invoice.finalized");
         // If you want to manually send out invoices to your customers
         // or store them locally to reference to avoid hitting Stripe rate limits.
         break;
-      case 'invoice.payment_failed':
-
-        const subscription_id = dataObject['subscription']
-        const payment_intent_id = dataObject['payment_intent']
+      case "invoice.payment_failed":
+        const subscription_id = dataObject["subscription"];
+        const payment_intent_id = dataObject["payment_intent"];
 
         let entry = null;
 
@@ -108,15 +116,19 @@ app.post(
         //   // return res.status(400).send({ error: { message: error.message } });
         // }
         // Handle the payment failure, e.g., notify the customer, update payment information, etc.
-        console.error('Payment failed for invoice:', event.data.object.id);
+        console.error("Payment failed for invoice:", event.data.object.id);
         break;
-      case 'customer.subscription.deleted':
+      case "customer.subscription.deleted":
         if (event.request != null) {
           // handle a subscription cancelled by your request
           // from above.
-          console.error('Event: customer.subscription.deleted: (event.request != null)');
+          console.error(
+            "Event: customer.subscription.deleted: (event.request != null)"
+          );
         } else {
-          console.error('Event: customer.subscription.deleted: (event.request == null)');
+          console.error(
+            "Event: customer.subscription.deleted: (event.request == null)"
+          );
           // handle subscription cancelled automatically based
           // upon your subscription settings.
         }
@@ -140,38 +152,38 @@ app.post(
           .then(async (customer) => {
             console.error("Customer: ", customer);
             let userData = customer.metadata;
-            userData.role = 'buyer'
+            userData.role = "buyer";
 
             User.create(userData)
               .then(async (user) => {
-                console.error('user created: ', user);
+                console.error("user created: ", user);
                 const loginLink = `https://${frontend_url}/login`;
                 let mailOptions = {
-                  from: 'info@covertnest.com',
+                  from: "info@covertnest.com",
                   to: user.email,
-                  subject: 'User Created Successfully | Payment Done',
+                  subject: "User Created Successfully | Payment Done",
                   html: `
                     <h1>Congratulations!</h1>
                     <h4>Your Account has created successfuly</h4>
                     <h6>You can login <a href="${loginLink}">here</a></h6>
                     <p>Thank You!</p>
-                    `
+                    `,
                 };
                 let payment = await Payment.create({
                   payment: checkoutSessionCompleted,
-                  user: user._id
+                  user: user._id,
                 });
                 console.error("Entry Added: ", payment);
                 try {
-                  await sendEmail(mailOptions)
+                  await sendEmail(mailOptions);
                 } catch (error) {
                   console.error(error);
                 }
               })
               .catch((err) => {
                 console.error(err);
-                return response.status(500).json(err)
-              })
+                return response.status(500).json(err);
+              });
           })
           .catch((err) => {
             console.error("Error: ", err.message);
@@ -201,27 +213,25 @@ app.use(cookieParser());
 const property = require("./routes/propertyRoute");
 const pages = require("./routes/pagesRoute");
 const blog = require("./routes/blog.routes");
-const category = require('./routes/category.routes');
-const contact = require('./routes/contactRoute');
-const email = require('./routes/emailRoute');
+const category = require("./routes/category.routes");
+const contact = require("./routes/contactRoute");
+const email = require("./routes/emailRoute");
 const payment = require("./routes/paymentRoute");
-const data = require('./routes/dataRoute');
+const data = require("./routes/dataRoute");
+const user = require("./routes/user.routes");
 
+app.use(express.static(path.join(__dirname, "public")));
 
-
-
-app.use(express.static(path.join(__dirname, "public")))
-
-initRoutes(app)
+initRoutes(app);
+app.use("/api/v1", user);
 app.use("/api/v1", property);
 app.use("/api/v1", pages);
 app.use("/api/v1", blog);
-app.use('/api/v1', category);
-app.use('/api/v1', contact);
-app.use('/api/v1', email);
-app.use('/api/v1', data);
+app.use("/api/v1", category);
+app.use("/api/v1", contact);
+app.use("/api/v1", email);
+app.use("/api/v1", data);
 app.use("/api/v1", payment);
-
 
 app.get("/", (req, res) => {
   res.json({

@@ -70,6 +70,7 @@ exports.createUser = async (req, res, next) => {
 
   User.create(req.body)
     .then(async (user) => {
+      console.log("Into create try");
       const loginLink = `https://${frontend_url}/login`;
       let mailOptions = {
         from: "info@covertnest.com",
