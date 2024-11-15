@@ -1,14 +1,20 @@
-const express = require('express');
+const express = require("express");
 const {
-    processPayment, createSubscription, cancelSubscription
-} = require('../controllers/paymentController');
+  processPayment,
+  createSubscription,
+  cancelSubscription,
+} = require("../controllers/paymentController");
 
-const { isAuthenticatedUser } = require('../middlewares/auth');
+const { isAuthenticatedUser } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.route('/payment/process').post(processPayment);
-router.route('/payment/create-subscription').post(isAuthenticatedUser, createSubscription);
-router.route('/payment/cancel-subscription').delete(isAuthenticatedUser, cancelSubscription);
+router.route("/payment/process").post(processPayment);
+router
+  .route("/payment/create-subscription")
+  .post(isAuthenticatedUser, createSubscription);
+router
+  .route("/payment/cancel-subscription")
+  .delete(isAuthenticatedUser, cancelSubscription);
 
 module.exports = router;
