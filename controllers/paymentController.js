@@ -73,36 +73,38 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
 });
 
 exports.cancelSubscription = asyncErrorHandler(async (req, res, next) => {
-  let entry = null;
-  console.log("Going to delete subscription");
+  console.log("Attempting to cancel subscription for user:", req.user.id);
 
   try {
     // Fetch the payment entry
-    entry = await Payment.findOne({ user: req.user.id });
-    console.log("Deleted: ", entry);
-  } catch (error) {
-    console.error("Error fetching payment entry:", error);
-    return res
-      .status(404)
-      .send({ error: { message: "Error fetching payment entry." } });
-  }
-  // Cancel the subscription
-  try {
-    const deletedSubscription = await stripe.subscriptions.del(
-      entry.payment.subscription
-    );
-    // let usage = await Usage.findOne({ user: req.user.id });
-    // usage.payment = false;
-    // usage.usageLimit = 10;
-    // usage.plan = 'Free';
-    // await usage.save();
+    const paymentEntry = await Payment.deleteOne({ user: req.user.id });
+    // if (!paymentEntry) {
+    //   return res
+    //     .status(404)
+    //     .json({ message: "No active subscription found for the user." });
+    // }
+    // console.log("paymentEntry: ", paymentEntry);
+    // Cancel the subscription on Stripe
+    // const subscriptionId = paymentEntry.payment.subscriptionId; // Ensure this is stored during creation
+    // const deletedSubscription = await stripe.subscriptions.del(subscriptionId);
 
-    // await Payment.deleteOne({ _id: entry._id });
-    // console.log('Deleted Payment: ', entry);
-    res.send({ subscription: deletedSubscription });
+    // Optional: Update usage or limits
+    // Update any usage or plan data here if necessary
+
+    // Delete the payment entry or mark it as inactive
+    // await Payment.deleteOne({ _id: paymentEntry._id });
+
+    console.log("Subscription canceled successfully:", paymentEntry);
+    return res.status(200).json({
+      success: true,
+      message: "Subscription canceled successfully",
+      subscription: paymentEntry,
+    });
   } catch (error) {
     console.error("Error canceling subscription:", error);
-    return res.status(400).send({ error: { message: error.message } });
+    return res.status(500).json({
+      message: "Failed to cancel subscription. Please try again later.",
+    });
   }
 });
 

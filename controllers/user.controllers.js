@@ -1,6 +1,7 @@
 const sanitize = require("mongo-sanitize");
 const crypto = require("crypto");
 const User = require("../models/user.model");
+const Payment = require("../models/paymentModel");
 const asyncErrorHandler = require("../middlewares/asyncErrorHandler");
 const sendToken = require("../utils/sendToken");
 const ErrorHandler = require("../utils/errorHandler");
@@ -14,9 +15,8 @@ const sendEmail = require("../utils/sendEmail");
 
 // FrontEnd URL
 let frontend_url = "covertnest.com";
-exports.getUser = (req, res) => {
+exports.getUser = async (req, res) => {
   const user = req.user;
-
   res.status(200).send({ message: "User info successfully retreived", user });
 };
 
@@ -94,25 +94,67 @@ exports.loginUser = async (req, res, next) => {
   const { error } = validateLoginInput(req.body);
   if (error) return res.status(422).json({ message: error.details[0].message });
 
-  let sanitizedInput = sanitize(req.body);
+  const sanitizedInput = sanitize(req.body);
 
-  User.findOne({ email: sanitizedInput.email.toLowerCase() })
-    .select("+password")
-    .then(async (user) => {
-      if (!user) {
-        return res.status(401).json({ message: "User Not Found" });
-      }
-      let passCheck = await user.comparePassword(sanitizedInput.password);
-      if (passCheck) {
-        sendToken(user, 201, res);
+  try {
+    // Find user by email
+    const user = await User.findOne({
+      email: sanitizedInput.email.toLowerCase(),
+    }).select("+password");
+
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
+    }
+
+    // Check password
+    const passCheck = await user.comparePassword(sanitizedInput.password);
+    if (!passCheck) {
+      return res.status(401).json({ message: "Password is Wrong!" });
+    }
+
+    // Check subscription
+    const existingSubscription = await Payment.findOne({ user: user._id });
+
+    let hasActiveSubscription = false;
+
+    // Check if there’s an existing subscription and if it has expired
+    if (existingSubscription) {
+      console.log("Into the subcription");
+      const expiryDate = new Date(
+        existingSubscription.payment.expires_at * 1000
+      ); // Convert to milliseconds
+      const today = new Date();
+      console.log("expiryDate: ", expiryDate);
+      if (expiryDate < today) {
+        // Subscription has expired, so delete it from the Payment collection
+        console.log("existingSubscription._id: ", existingSubscription._id);
+        const deletedPayment = await Payment.deleteOne({
+          _id: existingSubscription._id,
+        });
+        console.log("deleted payment: ", deletedPayment);
+        console.log("Subscription has expired and has been deleted.");
       } else {
-        res.status(500).json({ message: "Password is Wrong!" });
+        // Subscription is still active
+        hasActiveSubscription = true;
       }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).json({ message: "Something Went Wrong" });
-    });
+    } else {
+      console.log("Hello console!");
+    }
+
+    // Attach subscription status to user object or response
+    const userResponse = {
+      ...user.toObject(),
+      hasSubscription: hasActiveSubscription, // Indicates if the user has an active subscription
+    };
+
+    console.log("userResponse: ", userResponse);
+
+    // Send token and response together
+    sendToken(user, 200, res, userResponse);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something Went Wrong" });
+  }
 };
 
 exports.forgotPassword = async (req, res, next) => {
