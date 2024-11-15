@@ -114,12 +114,37 @@ exports.loginUser = async (req, res, next) => {
 
     // Check subscription
     const existingSubscription = await Payment.findOne({ user: user._id });
-    const hasSubscription = !!existingSubscription;
+
+    let hasActiveSubscription = false;
+
+    // Check if there’s an existing subscription and if it has expired
+    if (existingSubscription) {
+      console.log("Into the subcription");
+      const expiryDate = new Date(
+        existingSubscription.payment.expires_at * 1000
+      ); // Convert to milliseconds
+      const today = new Date();
+      console.log("expiryDate: ", expiryDate);
+      if (expiryDate < today) {
+        // Subscription has expired, so delete it from the Payment collection
+        console.log("existingSubscription._id: ", existingSubscription._id);
+        const deletedPayment = await Payment.deleteOne({
+          _id: existingSubscription._id,
+        });
+        console.log("deleted payment: ", deletedPayment);
+        console.log("Subscription has expired and has been deleted.");
+      } else {
+        // Subscription is still active
+        hasActiveSubscription = true;
+      }
+    } else {
+      console.log("Hello console!");
+    }
 
     // Attach subscription status to user object or response
     const userResponse = {
       ...user.toObject(),
-      status: hasSubscription, // This indicates subscription status
+      hasSubscription: hasActiveSubscription, // Indicates if the user has an active subscription
     };
 
     console.log("userResponse: ", userResponse);
